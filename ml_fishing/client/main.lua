@@ -23,36 +23,34 @@ local WaterTypes = {
     [22] =  {["name"] = "Dakota River",         ["waterhash"] = 370072007, ["watertype"] = "river"},
 }
 
-local fishing = false
-
 RegisterNetEvent('ml_fisher:StartFishing')
 AddEventHandler('ml_fisher:StartFishing', function()
-
     local ped = PlayerPedId()
     local coords = GetEntityCoords(ped)
     local Water = Citizen.InvokeNative(0x5BA7A68A346A5A91,coords.x+3, coords.y+3, coords.z)
-    for k,v in pairs(WaterTypes) do
-        if Water ~= WaterTypes[k]["waterhash"]  then
-			
-			if fishing == false then
-            TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_STAND_FISHING'), 30000, true, false, false, false)
-            
-			fishing = true
-			
-            Citizen.Wait(35000)
-			
-            ClearPedTasksImmediately(ped)
-			ClearPedSecondaryTask(ped)
-			fishing = false
-            r = math.random(1,10)
-            if r < 3 then
-                TriggerServerEvent("fishing")
-            else
-                TriggerEvent("redemrp_notification:start", "You didnt manage to find anything!", 3)
-            end
-            break
+    local canFish = false
+    for k,v in pairs(WaterTypes) do 
+        if Water == WaterTypes[k]["waterhash"]  then
+            canFish = true           
+            break            
         end
-      end
-	end
+    end
+    if canFish then
+        TaskStartScenarioInPlace(ped, GetHashKey('WORLD_HUMAN_STAND_FISHING'), 30000, true, false, false, false)
+            
+        Citizen.Wait(35000)
+
+        ClearPedTasksImmediately(ped)
+        ClearPedSecondaryTask(ped)
+        r = math.random(1,5)
+        if r < 3 then
+            TriggerServerEvent("fishing")
+        else
+            TriggerEvent("redemrp_notification:start", "You didnt manage to find anything!", 2)
+        end
+    else
+        Citizen.Wait(5000)
+        TriggerEvent("redemrp_notification:start", "You can't fish here!", 2)
+    end
 end)
 
